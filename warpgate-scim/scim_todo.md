@@ -63,3 +63,6 @@
 - [x] README feature bullet
 - [x] fmt, cranky, full cargo test, full e2e run
 - [x] Final review against the design and PR description
+
+## Phase 8 — docs
+- [x] README section with setup, mapping and caveats
