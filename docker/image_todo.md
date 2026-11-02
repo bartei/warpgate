@@ -8,6 +8,6 @@
 ## Phase 2 — land and verify
 - [x] PR to main, merged
 - [x] Upstream Docker workflow guarded to run only in warp-tech/warpgate
-- [ ] arm64 build: swap step for the LTO link, verified by a dispatch run
+- [x] arm64 build: swap step for the LTO link, verified by a dispatch run
 - [ ] Manual run on main succeeds; manifest lists amd64 and arm64
 - [ ] Image runs locally: version, unattended-setup, healthcheck
