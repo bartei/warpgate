@@ -54,9 +54,27 @@ afterwards if pulls without a token are wanted.
 **D7 — `docker/Dockerfile` is unchanged.** It builds from source inside the image with
 the git metadata copied in, and enables `mysql,postgres,rdp-openssl-tls`.
 
+**D8 — Swap on the build runners.** The first `main` run OOM-killed `rustc` on arm64
+during the fat-LTO link of the `warpgate` binary (`SIGKILL`, then buildx reporting
+"cannot allocate memory"), while amd64 passed and upstream's identical arm64 build
+passes on the same runner. The link's peak sits at the edge of the free runner's RAM,
+so a second swap file (6 GB at `/swapfile-lto`; the runner image already has an
+active 4 GB `/swapfile`, and `fallocate` on that path fails with "Text file busy") is
+added before the build on both runners; the build container runs without a memory limit and so uses the host's
+swap.
+Measured on the verification run: both runners report 4 vCPU, 15 GiB RAM and a 3 GiB
+stock swap; with 9 GiB of swap the arm64 image build completed in 22m39s, the
+amd64 one in 20 min.
+The same step is added before the cargo build in `.github/workflows/build.yml`: its
+arm64 job (`--all-features --release` on the free arm64 runner) was dying the same way,
+ending after the compile with no error line, and was being re-run as a "flake". Rejected: `lto = "thin"` or the `release-no-lto` profile for arm64 (a different
+binary from upstream's and from amd64), fewer `-Zthreads` (the fat-LTO peak is one
+LLVM module and does not scale down with threads), and paid larger runners.
+
 ## Files
 
-- `.github/workflows/image.yml` (new); this design and `docker/image_todo.md`.
+- `.github/workflows/image.yml` (new); `.github/workflows/build.yml` (swap step);
+  `.github/workflows/docker.yml` (fork guard); this design and `docker/image_todo.md`.
 
 ## Deploy / blast radius
 
@@ -71,3 +89,5 @@ the git metadata copied in, and enables `mysql,postgres,rdp-openssl-tls`.
    `linux/arm64`.
 3. `docker run --rm ghcr.io/bartei/warpgate:main version` prints the fork's version
    locally, and `unattended-setup` + `run` + `healthcheck` pass in the smoke step.
+4. The arm64 build job completes the LTO link with the swap step in place (the step
+   logs `free -h` so the headroom is visible).

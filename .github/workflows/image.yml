@@ -62,6 +62,22 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
+      - name: Add swap for the LTO link
+        # The fat-LTO link of the final binary peaks around the free arm64
+        # runner's RAM and rustc gets OOM-killed (design D8). Swap gives it
+        # headroom; the build container uses the host's swap.
+        # The runner image already has an active /swapfile, so use another path.
+        run: |
+          nproc
+          free -h
+          swapon --show
+          df -h / | tail -1
+          sudo fallocate -l 6G /swapfile-lto
+          sudo chmod 600 /swapfile-lto
+          sudo mkswap /swapfile-lto
+          sudo swapon /swapfile-lto
+          free -h
+
       - name: Build and push by digest
         id: build
         uses: docker/build-push-action@v7.4.0

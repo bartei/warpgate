@@ -86,6 +86,19 @@ jobs:
           just npm prune
           cd warpgate-web && NODE_ENV=dev cyclonedx-npm --output-format xml > ../cdx/admin-ui.cdx.xml
 
+      - name: Add swap for the LTO link
+        # The fat-LTO link of the final binary peaks around the free arm64
+        # runner's RAM and rustc gets OOM-killed, which shows up as the job
+        # ending with no error line (docker/image_design.md, D8). The runner
+        # image already has an active /swapfile, so use another path.
+        run: |
+          free -h
+          sudo fallocate -l 6G /swapfile-lto
+          sudo chmod 600 /swapfile-lto
+          sudo mkswap /swapfile-lto
+          sudo swapon /swapfile-lto
+          free -h
+
       - name: Build
         uses: actions-rs/cargo@v1.0.3
         with:

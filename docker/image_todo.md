@@ -6,7 +6,9 @@
 - [x] YAML validity check
 
 ## Phase 2 — land and verify
-- [ ] PR to main, merged
+- [x] PR to main, merged
 - [x] Upstream Docker workflow guarded to run only in warp-tech/warpgate
+- [x] arm64 build: swap step for the LTO link, verified by a dispatch run
+- [ ] Same swap step in build.yml; arm64 Build job green on the PR
 - [ ] Manual run on main succeeds; manifest lists amd64 and arm64
 - [ ] Image runs locally: version, unattended-setup, healthcheck
