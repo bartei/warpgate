@@ -1,3 +1,4 @@
+import re
 import time
 from uuid import uuid4
 
@@ -61,11 +62,12 @@ class Test:
             )
             api.add_target_role(target.id, role.id)
 
-            # xfreerdp logs each cursor the server hands it (`[xf_Pointer_New]`) and each
-            # time it applies one (`[xf_Pointer_Set]`; the bracket keeps out the
-            # `xf_Pointer_SetNull` / `SetPosition` lines). xrdp sets the X cursor as soon as
-            # its session starts, so the viewer must see them if Warpgate relays the target's
-            # cursor, and none if it doesn't.
+            # xfreerdp logs each cursor the server hands it (`xf_Pointer_New`) and each
+            # time it applies one (`xf_Pointer_Set`; the word boundary keeps out the
+            # `xf_Pointer_SetNull` / `SetPosition` lines). FreeRDP 3 brackets the function
+            # name, FreeRDP 2 follows it with a colon, so neither is matched literally.
+            # xrdp sets the X cursor as soon as its session starts, so the viewer must see
+            # them if Warpgate relays the target's cursor, and none if it doesn't.
             output = full_connect(
                 "localhost",
                 shared_wg.rdp_port,
@@ -78,9 +80,9 @@ class Test:
             log = "\n".join(
                 line for line in output.splitlines() if "try_add" not in line
             )
-            assert "[xf_Pointer_New]" in output, (
+            assert re.search(r"xf_Pointer_New\b", output), (
                 f"the target's cursor never reached the viewer:\n{log}"
             )
-            assert "[xf_Pointer_Set]" in output, (
+            assert re.search(r"xf_Pointer_Set\b", output), (
                 f"the viewer never applied the target's cursor:\n{log}"
             )
