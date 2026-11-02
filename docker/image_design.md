@@ -19,10 +19,11 @@ can be deployed. No Helm chart publishing.
 ## Decisions
 
 **D1 — A separate workflow, `.github/workflows/image.yml` ("Image").** Upstream's
-`docker.yml` stays untouched for merge parity and must remain disabled on the fork (it
-was enabled by mistake on 2026-11-02 and will fail at its push step; disabling is a click
-in the Actions tab that the maintainer does). `.gitignore` ignores `.github` but
-re-includes `.github/workflows`, so the new file is tracked.
+`docker.yml` gets one job-level guard, `if: github.repository == 'warp-tech/warpgate'`,
+so it is a no-op on any fork (its other jobs depend on that one and are skipped) and
+needs no manual disabling; the guard is a one-line merge against future upstream changes.
+`.gitignore` ignores `.github` but re-includes `.github/workflows`, so the new file is
+tracked.
 
 **D2 — Triggers:** `push` to `main`, `push` of `v*.*.*` tags, and `workflow_dispatch` for
 a manual build. No schedule (fork-disabled and a daily 2×20 min bill), no pull requests
@@ -61,7 +62,7 @@ the git metadata copied in, and enables `mysql,postgres,rdp-openssl-tls`.
 
 - A new workflow on the fork only. Nothing in the product changes. Each `main` push now
   costs two ~20-minute runners plus a short merge job.
-- Upstream's Docker workflow must be disabled on the fork or both will run.
+- Upstream's Docker workflow is skipped on the fork by its guard; nothing else changes.
 
 ## Verification
 

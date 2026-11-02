@@ -7,6 +7,6 @@
 
 ## Phase 2 — land and verify
 - [ ] PR to main, merged
-- [ ] Upstream Docker workflow disabled on the fork
+- [x] Upstream Docker workflow guarded to run only in warp-tech/warpgate
 - [ ] Manual run on main succeeds; manifest lists amd64 and arm64
 - [ ] Image runs locally: version, unattended-setup, healthcheck
