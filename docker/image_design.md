@@ -58,8 +58,9 @@ the git metadata copied in, and enables `mysql,postgres,rdp-openssl-tls`.
 during the fat-LTO link of the `warpgate` binary (`SIGKILL`, then buildx reporting
 "cannot allocate memory"), while amd64 passed and upstream's identical arm64 build
 passes on the same runner. The link's peak sits at the edge of the free runner's RAM,
-so a swap file (6 GB, well under the runner's free disk) is added before the build on
-both runners; the build container runs without a memory limit and so uses the host's
+so a second swap file (6 GB at `/swapfile-lto`; the runner image already has an
+active 4 GB `/swapfile`, and `fallocate` on that path fails with "Text file busy") is
+added before the build on both runners; the build container runs without a memory limit and so uses the host's
 swap. Rejected: `lto = "thin"` or the `release-no-lto` profile for arm64 (a different
 binary from upstream's and from amd64), fewer `-Zthreads` (the fat-LTO peak is one
 LLVM module and does not scale down with threads), and paid larger runners.
