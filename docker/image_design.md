@@ -64,13 +64,17 @@ added before the build on both runners; the build container runs without a memor
 swap.
 Measured on the verification run: both runners report 4 vCPU, 15 GiB RAM and a 3 GiB
 stock swap; with 9 GiB of swap the arm64 image build completed in 22m39s, the
-amd64 one in 20 min. Rejected: `lto = "thin"` or the `release-no-lto` profile for arm64 (a different
+amd64 one in 20 min.
+The same step is added before the cargo build in `.github/workflows/build.yml`: its
+arm64 job (`--all-features --release` on the free arm64 runner) was dying the same way,
+ending after the compile with no error line, and was being re-run as a "flake". Rejected: `lto = "thin"` or the `release-no-lto` profile for arm64 (a different
 binary from upstream's and from amd64), fewer `-Zthreads` (the fat-LTO peak is one
 LLVM module and does not scale down with threads), and paid larger runners.
 
 ## Files
 
-- `.github/workflows/image.yml` (new); this design and `docker/image_todo.md`.
+- `.github/workflows/image.yml` (new); `.github/workflows/build.yml` (swap step);
+  `.github/workflows/docker.yml` (fork guard); this design and `docker/image_todo.md`.
 
 ## Deploy / blast radius
 
