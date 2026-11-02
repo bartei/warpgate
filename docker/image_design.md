@@ -61,7 +61,10 @@ passes on the same runner. The link's peak sits at the edge of the free runner's
 so a second swap file (6 GB at `/swapfile-lto`; the runner image already has an
 active 4 GB `/swapfile`, and `fallocate` on that path fails with "Text file busy") is
 added before the build on both runners; the build container runs without a memory limit and so uses the host's
-swap. Rejected: `lto = "thin"` or the `release-no-lto` profile for arm64 (a different
+swap.
+Measured on the verification run: both runners report 4 vCPU, 15 GiB RAM and a 3 GiB
+stock swap; with 9 GiB of swap the arm64 image build completed in 22m39s, the
+amd64 one in 20 min. Rejected: `lto = "thin"` or the `release-no-lto` profile for arm64 (a different
 binary from upstream's and from amd64), fewer `-Zthreads` (the fat-LTO peak is one
 LLVM module and does not scale down with threads), and paid larger runners.
 
