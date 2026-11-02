@@ -20,6 +20,8 @@ concurrency:
 
 jobs:
   build:
+    # Upstream's publishing pipeline; a fork publishes with image.yml instead.
+    if: github.repository == 'warp-tech/warpgate'
     runs-on: ${{matrix.os}}
     strategy:
       matrix:
