@@ -15,3 +15,8 @@
 - [x] Other wait_mysql_port callers pass
 - [x] Role and SCIM tests pass
 - [x] Two concurrent pytest processes do not collide on ports
+
+## Phase 4 — upstream sync (2026-11-03)
+- [x] start_mysql_server/start_mariadb_server pass extra mysqld args through
+- [x] Readiness probe is mysqladmin ping, so a TLS-less server reports ready
+- [x] DB suites pass locally with the merged upstream tests

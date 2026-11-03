@@ -153,32 +153,23 @@ def wait_port(port, recv=True, timeout=60, for_process: subprocess.Popen = None,
 
 
 def wait_mysql_port(port, timeout=120):
-    """Waits for the MySQL/MariaDB container published on `port` to serve
-    queries. Probed with the client inside the container: the image's
-    entrypoint runs a temporary server with networking disabled while it
-    initialises, so a TCP probe only succeeds once the real server is up, and
-    no host client (whose flags differ between versions) is involved."""
+    """Waits for the MySQL/MariaDB container published on `port` to answer.
+    Probed with `mysqladmin ping` inside the container: the image's entrypoint
+    runs a temporary server with networking disabled while it initialises, so
+    a TCP ping only succeeds once the real server is up; no host client (whose
+    flags differ between versions) is involved; and no login is attempted, so
+    a server started without TLS (caching_sha2_password cannot authenticate
+    over plaintext) still reports ready."""
     container = mysql_containers[port]
     logging.debug(f"Waiting for MySQL in {container} (port {port})")
 
     def ready():
-        return (
-            subprocess.run(
-                [
-                    "docker",
-                    "exec",
-                    container,
-                    "mysql",
-                    "--protocol=tcp",
-                    "--user=root",
-                    "--password=123",
-                    "--execute=show schemas;",
-                ],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            ).returncode
-            == 0
+        probe = subprocess.run(
+            ["docker", "exec", container, "mysqladmin", "--protocol=tcp", "ping"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
         )
+        return probe.returncode == 0
 
     wait_until(ready, f"MySQL in {container} is not ready", timeout=timeout, interval=1)
     logging.debug(f"Port {port} is up")

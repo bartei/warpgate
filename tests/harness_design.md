@@ -22,12 +22,16 @@ code under test.
 
 ## Decisions
 
-**D1 — Database readiness is probed inside the container.** `wait_mysql_port(port)` runs
-`mysql --protocol=tcp … --execute='show schemas;'` with `docker exec` in the container
-published on `port`, which `start_mysql_server`/`start_mariadb_server` now name and register
-(as `start_ssh_server` does). The temporary server the image's entrypoint runs during
+**D1 — Database readiness is probed inside the container, without logging in.**
+`wait_mysql_port(port)` runs `mysqladmin --protocol=tcp ping` with `docker exec` in the
+container published on `port`, which `start_mysql_server`/`start_mariadb_server` name and
+register (as `start_ssh_server` does). The temporary server the image's entrypoint runs during
 initialisation has networking disabled, so a TCP probe only succeeds once the real server is
-up. The host client is still used, deliberately, by the tests that speak the MySQL protocol
+up. `ping` exits 0 whenever the server answers, "access denied" included, which is the point:
+the first version of the probe ran a password login, and upstream's
+`test_db_target_tls_downgrade.py` (merged 2026-11-03) starts MySQL with `--tls-version=`, where
+`caching_sha2_password` refuses to authenticate over plaintext and the login-based probe never
+reported ready. Both images ship `mysqladmin` (MySQL 9.7, MariaDB 10.8). The host client is still used, deliberately, by the tests that speak the MySQL protocol
 *through Warpgate*; the `GITHUB_ACTION` client-flag switch stays for those. Rejected: pinning
 a host client version — the probe has no reason to leave the container.
 
