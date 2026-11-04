@@ -412,7 +412,7 @@ class ProcessManager:
         )
         return port
 
-    def _start_mysql_like(self, image: str) -> int:
+    def _start_mysql_like(self, image: str, *mysqld_args) -> int:
         port = alloc_port()
         container_name = f"{image}-{uuid.uuid4()}"
         mysql_containers[port] = container_name
@@ -426,15 +426,16 @@ class ProcessManager:
                 "-p",
                 f"{port}:3306",
                 image,
+                *mysqld_args,
             ]
         )
         return port
 
-    def start_mariadb_server(self):
-        return self._start_mysql_like("warpgate-e2e-mariadb-server")
+    def start_mariadb_server(self, *mysqld_args):
+        return self._start_mysql_like("warpgate-e2e-mariadb-server", *mysqld_args)
 
-    def start_mysql_server(self):
-        return self._start_mysql_like("warpgate-e2e-mysql-server")
+    def start_mysql_server(self, *mysqld_args):
+        return self._start_mysql_like("warpgate-e2e-mysql-server", *mysqld_args)
 
     def start_vnc_server(self, require_password=False):
         port = alloc_port()
@@ -473,9 +474,14 @@ class ProcessManager:
         )
         return port
 
-    def start_postgres_server(self):
+    def start_postgres_server(self, host_auth_method=None):
         port = alloc_port()
         container_name = f"warpgate-e2e-postgres-server-{uuid.uuid4()}"
+        env = (
+            ["-e", f"POSTGRES_HOST_AUTH_METHOD={host_auth_method}"]
+            if host_auth_method
+            else []
+        )
         self.start(
             [
                 "docker",
@@ -485,6 +491,7 @@ class ProcessManager:
                 container_name,
                 "-p",
                 f"{port}:5432",
+                *env,
                 "warpgate-e2e-postgres-server",
             ]
         )
