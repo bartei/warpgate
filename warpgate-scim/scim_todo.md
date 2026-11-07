@@ -66,3 +66,12 @@
 
 ## Phase 8 — docs
 - [x] README section with setup, mapping and caveats
+
+## Phase 9 — upstream PR (see D19, D20)
+- [x] Branch scim-upstream from upstream/main with only the SCIM files and the two harness helpers
+- [x] Cargo.lock regenerated; diff limited to the new crate
+- [x] clippy, unit tests, web build, svelte-check, biome, e2e scim + api green on the branch
+- [x] Issue filed upstream (warp-tech/warpgate#2887)
+- [x] PR body drafted with issue reference and AI-usage box
+- [x] PR opened against warp-tech/warpgate (#2888, from bartei:scim-upstream)
+

@@ -69,29 +69,6 @@ pub fn rfc3339(time: OffsetDateTime) -> String {
         .unwrap_or_default()
 }
 
-#[cfg(test)]
-mod tests {
-    use time::macros::datetime;
-
-    use super::rfc3339;
-
-    #[test]
-    fn timestamps_have_a_fixed_width_fraction_in_utc() {
-        assert_eq!(
-            rfc3339(datetime!(2026-11-02 04:16:07.5 +00:00)),
-            "2026-11-02T04:16:07.500Z"
-        );
-        assert_eq!(
-            rfc3339(datetime!(2026-11-02 06:16:07.123456 +02:00)),
-            "2026-11-02T04:16:07.123Z"
-        );
-        assert_eq!(
-            rfc3339(datetime!(2026-11-02 04:16:07 +00:00)),
-            "2026-11-02T04:16:07.000Z"
-        );
-    }
-}
-
 /// The request body as an object, or `invalidSyntax`.
 pub fn body_object(body: &Value) -> Result<&Map<String, Value>, ScimError> {
     body.as_object()
@@ -131,4 +108,27 @@ pub fn without(body: &Map<String, Value>, reserved: &[&str]) -> Map<String, Valu
         }
     }
     rest
+}
+
+#[cfg(test)]
+mod tests {
+    use time::macros::datetime;
+
+    use super::rfc3339;
+
+    #[test]
+    fn timestamps_have_a_fixed_width_fraction_in_utc() {
+        assert_eq!(
+            rfc3339(datetime!(2026-11-02 04:16:07.5 +00:00)),
+            "2026-11-02T04:16:07.500Z"
+        );
+        assert_eq!(
+            rfc3339(datetime!(2026-11-02 06:16:07.123456 +02:00)),
+            "2026-11-02T04:16:07.123Z"
+        );
+        assert_eq!(
+            rfc3339(datetime!(2026-11-02 04:16:07 +00:00)),
+            "2026-11-02T04:16:07.000Z"
+        );
+    }
 }
