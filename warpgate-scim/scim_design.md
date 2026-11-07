@@ -248,3 +248,26 @@ Changed
    permission matrix passes.
 6. `just npm run check`, `just lint`; manual click-through of the SCIM page and the user switch.
 7. `tests/test_db_migrations.py` still passes (fresh DB and upgrade path).
+
+## Upstreaming (2026-11-07)
+
+**D19 — One feature-only PR against warp-tech/warpgate, built as a fresh branch, not a
+merge.** Upstream's template requires one issue per PR, forbids combination PRs, and requires
+the author to understand every line and answer reviewers without an LLM. The fork's `main`
+also carries fork-only plumbing (the Image workflow, the Docker guard, the runner swap steps,
+`deny.toml` ignores, the e2e harness rework, the FreeRDP log fix and these design/todo files),
+none of which belongs in the PR. So the branch `scim-upstream` starts at `upstream/main` and
+takes the SCIM files from the fork as they are today (already merged with upstream's
+navigation rewrite), plus the two harness helpers `test_scim.py` needs (`util.wait_until`,
+`conftest.wait_for_open_session`) and the SCIM cases in `test_api.py`. `Cargo.lock` is
+regenerated from upstream's so its diff is only the new crate. Rejected: cherry-picking the
+fork's commits (they conflict with upstream's later refactors and drag the harness rework
+along) and sending the fork's `main` as-is (a combination PR, closed on sight).
+
+**D20 — Issue first, then the PR.** No upstream issue mentions SCIM, and the user's earlier
+PR #2859 was closed unfilled; the new PR body references a freshly filed feature issue,
+describes the design in upstream's terms (what maps to what, deactivation semantics, token
+permissions, what is unsupported) and ticks "AI-designed, AI-coded, manually checked" in the
+AI-usage section. The fork's e2e evidence (Authentik against warpgate.provvedo.com, CI on the
+fork) goes in the description. Reviewer questions are answered by the user, not by an LLM.
+
