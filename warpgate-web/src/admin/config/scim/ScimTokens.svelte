@@ -173,9 +173,7 @@
                         hint="Create a token and configure it in your identity provider's SCIM integration"
                     />
                 {/snippet}
-                {#snippet item(
-                    token,
-                )}
+                {#snippet item(token)}
                     <div class="list-group-item px-0">
                         <div class="d-flex align-items-center gap-3">
                             <div class="flex-grow-1">
